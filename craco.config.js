@@ -9,6 +9,7 @@ module.exports = {
     webpack: {
         alias: {
             themes: resolveApp("src/themes"),
+            app: resolveApp("src/app"),
         }
     },
     plugins: [
