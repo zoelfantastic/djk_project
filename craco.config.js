@@ -10,6 +10,11 @@ module.exports = {
         alias: {
             themes: resolveApp("src/themes"),
             app: resolveApp("src/app"),
+            api: resolveApp("src/api"),
+            actions: resolveApp("src/actions"),
+            reducers: resolveApp("src/reducers"),
+            components: resolveApp("src/components"),
+            context: resolveApp("src/context")
         }
     },
     plugins: [
