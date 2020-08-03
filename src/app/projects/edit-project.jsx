@@ -116,12 +116,6 @@ class EditProject extends PureComponent {
 class ProjectEditorDialog extends PureComponent {
     formRef = React.createRef();
     handleSave = e => {
-        // e.preventDefault();
-        // this.props.form.validateFields((err, values) => {
-        //     if (!err && this.props.onSaveChange) {
-        //         this.props.onSaveChange(values);
-        //     }
-        // });
         this.formRef.current.validateFields()
                     .then(values => {
                         this.props.onSaveChange(values);

@@ -2,10 +2,12 @@ import React, { PureComponent } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout, Menu, Breadcrumb } from 'antd';
 import './MainLayout.less';
-import { FileSyncOutlined, 
-  PullRequestOutlined , UnorderedListOutlined, DeploymentUnitOutlined,
+import { 
+  PullRequestOutlined , 
+  UnorderedListOutlined, 
+  DeploymentUnitOutlined,
   ProjectOutlined,
-        MenuFoldOutlined, } from '@ant-design/icons';
+  ContainerOutlined } from '@ant-design/icons';
 
 const { SubMenu } = Menu;
 const { Header, Content, Footer, Sider } = Layout;
@@ -59,19 +61,46 @@ class MainLayout extends PureComponent {
             style={{ height: '100%', borderRight: 0 }}
           >
             <SubMenu key="projects" icon={<DeploymentUnitOutlined />} title="Projects">
-              <Menu.Item key="1" icon={<UnorderedListOutlined />}>
+              <Menu.Item key="1" >
                   <span>List Project</span>
                   <Link to="/project" />
-              </Menu.Item>
-              <Menu.Item key="2" icon={<FileSyncOutlined />}>
-                <span>Realisasi Project</span>
-              </Menu.Item>
+              </Menu.Item>            
             </SubMenu>
             <SubMenu key="pipeline" icon={<PullRequestOutlined />} title="Pipeline">
-              <Menu.Item key="3" icon={<ProjectOutlined />}>
+              <Menu.Item key="2" >
                   <span>List Pipeline</span>
-                  <Link to="/project" />
+                  <Link to="/pipeline" />
               </Menu.Item>
+            </SubMenu>
+            <SubMenu key="laporan" icon={<ContainerOutlined />} title="Laporan">
+              <Menu.Item key="3" >
+                  <span>Ringkasan Kinerja DJK</span>
+                  <Link to="/ringkasan-kinerja" />
+              </Menu.Item>
+              <Menu.Item key="4" >
+                  <span>Sebaran Proyek DJK</span>
+                  <Link to="/sebaran-proyek" />
+              </Menu.Item>    
+              <Menu.Item key="5" >
+                  <span>Mandat Carry-Over</span>
+                  <Link to="/mandat-co" />
+              </Menu.Item>               
+              <Menu.Item key="6" >
+                  <span>New Client</span>
+                  <Link to="/new-client" />
+              </Menu.Item>   
+              <Menu.Item key="7" >
+                  <span>Proses Mandat</span>
+                  <Link to="/proses-mandat" />
+              </Menu.Item>   
+              <Menu.Item key="8" >
+                  <span>Pergerakan Pipeline</span>
+                  <Link to="/pergerakan-pipeline" />
+              </Menu.Item>   
+              <Menu.Item key="9" >
+                  <span>Permasalahan Proyek</span>
+                  <Link to="/permasalahan-proyek" />
+              </Menu.Item>   
             </SubMenu>
           </Menu>
       </Sider>

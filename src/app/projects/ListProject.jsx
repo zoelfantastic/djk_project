@@ -1,10 +1,13 @@
 import React, { PureComponent } from 'react';
-import { Table, Button, message } from 'antd';
-import { ProjectService } from 'api/';
+import { Table, Button, message, Dropdown, Menu } from 'antd';
+import { ProjectService, RealisasiService } from 'api';
 import { withAppContext } from 'context';
-import {EditOutlined, PlusCircleOutlined, DeleteOutlined} from '@ant-design/icons';
+import {EditOutlined, PlusCircleOutlined, 
+        DeleteOutlined, MoreOutlined, LineChartOutlined} from '@ant-design/icons';
 import { AddProjectEditorDialogForm } from './add-project';
 import { ProjectEditorDialogForm } from './edit-project';
+import InfoProject from './info-project';
+import {Realisasi} from './realisasi';
 
 const ACTION = {
     CREATE: "CREATE",
@@ -17,7 +20,7 @@ const columns_meta = [
     title :  'Kode Proyek',
     dataIndex : 'id',
     key: 'id',
-    width: 150 
+    width: 80 
 },
 { 
     title :  'Klien',
@@ -61,19 +64,145 @@ const ActionColumn = ({ handlers, record }) => {
     </div>;
 }
 
+const RealisasiAction = ({record, handlerRealisasi}) => {
+    const recordId = record.id;
+    const menuRealisasi = (
+        <Menu onClick={handlerRealisasi} >
+            <Menu.Item key="biaya" recordId={recordId}>
+                Realisasi Biaya
+            </Menu.Item>
+            <Menu.Item key="invoice">
+                Invoice
+            </Menu.Item>
+            <Menu.Item key="kerja" recordId={recordId}>
+                Realiasi Kerja
+            </Menu.Item>
+            <Menu.Item key="project-issues" recordId={recordId}>
+                Project Issues
+            </Menu.Item>
+        </Menu>
+    );
+    return (
+        <Dropdown
+            overlay={menuRealisasi}>
+            <LineChartOutlined />
+        </Dropdown>
+    );
+}
+
+const MenuAction = ({handlers, record, handlerMenu}) => {
+    const recordId = record.id;
+    const menu = (
+        <Menu onClick={handlerMenu} >
+            <Menu.Item key="edit" recordId={recordId} >
+                Edit
+            </Menu.Item>
+            <Menu.Item key="add" >
+                Add
+            </Menu.Item>
+            <Menu.Item key="info" recordId={recordId} >
+                Info
+            </Menu.Item>
+            <Menu.Item key="realisasi" recordId={recordId} >
+                Realisasi
+            </Menu.Item>
+            {/* <Menu.Item key="delete" recordId={recordId} >
+                Delete
+            </Menu.Item> */}
+        </Menu>
+    );
+    return (
+        <Dropdown
+            overlay={menu}>
+            <MoreOutlined />
+        </Dropdown>
+    );
+};
+
 class ListProject extends PureComponent {
     constructor(props) {
         super(props);
         this.projectService = new ProjectService(props.appContext)
+        this.realisasiService = new RealisasiService(props.appContext);
+
         this.state = {
             data: [],
+            dataRealisasi: [],
             loading: false,
             editFormVisible: false,
             addFormVisible: false,
+            realisasiFormVisible: false,
+            infoFormVisible: false,
             action: undefined,
             selectedRecordId: undefined,
             selectedRecord: undefined,
+            selectedProject: undefined
         }
+    }
+
+    handleClickActionMenu = (e) => {
+        const id = e.item.props.recordId;
+        switch(e.key) {
+            case "edit" :
+                this.handleEdit(id);
+                break;
+            case "add" :
+                this.handleAdd();
+                break;
+            case "delete" :
+                this.handleDelete(id);
+                break;
+            case "info" :
+                this.handleInfo(id);
+                break;
+            case "realisasi" :
+                this.handleRealisasi(id);
+                break;
+            default: 
+                break;
+        }
+    }
+
+    handleClickRealisasiMenu = (e) => {
+        const id = e.item.props.recordId;
+        switch(e.key) {
+            case "biaya":
+                this.handleRealisasiBiaya(id);
+                break;
+            default:
+                break;
+        }
+    }
+
+    handleRealisasiBiaya = recordId => {
+        this.realisasiService.getDataRealisasi(recordId)
+            .then(result => {
+                this.setState({
+                    loading: false, 
+                    dataRealisasi: result,
+                    realisasiFormVisible: true, 
+                    selectedProject: recordId
+                });
+            })
+            .catch(error => {
+                this.setState({ loading: false },
+                    () => message.error('Terdapat gangguan saat mengunduh data'));
+            });
+    }
+
+    handleRealisasi = recordId => {
+        this.projectService.getDataProjectById(recordId)
+            .then(result => {
+                this.setState({
+                    loading: false, 
+                    selectedRecord: result,
+                    realisasiFormVisible: true, 
+                });
+            })
+            .catch(error => {
+                this.setState({ loading: false },
+                    () => message.error('Terdapat gangguan saat mengunduh data'));
+            });
     }
 
     handleAdd = () => {
@@ -103,6 +232,13 @@ class ListProject extends PureComponent {
         this.setState({ loading: true }, () => this.deleteRecord(recordId));
     }
 
+    handleInfo = recordId => {
+        this.setState({
+            loading: false, 
+            infoFormVisible: true
+        });
+    }
+
     getColumns = () => {
         const columns = columns_meta.map(e => {
             const { sortFunc, ...colDef } = e; // exclude 'sortFunc' property
@@ -110,9 +246,16 @@ class ListProject extends PureComponent {
             return colDef;
         });
 
-        columns.push({ title: '', key: 'actionColumn', render: this.actionColumnRenderer });
+        columns.push({ title: 'Action', key: 'actionColumn', render: this.actionColumnRenderer });
         return columns;
     }
+
+    detailRealisasiColumnRenderer = (text, record) => {
+        return (
+            <RealisasiAction record={record}  handlerRealisasi={this.handleClickRealisasiMenu} />
+         )
+    }
+
 
     actionColumnRenderer = (text, record) => {
         const handlers = {
@@ -120,7 +263,10 @@ class ListProject extends PureComponent {
             addHandler: this.handleAdd,
             deleteHandler: this.handleDelete
         }
-        return <ActionColumn record={record} handlers={handlers} />
+        return (
+           <MenuAction record={record} handlers={handlers} handlerMenu={this.handleClickActionMenu} />
+        )
+        // <ActionColumn record={record} handlers={handlers} />
     }
 
     componentDidMount() {
@@ -218,8 +364,19 @@ class ListProject extends PureComponent {
         this.setState({ addFormVisible: false });
     }
 
+    handleRealisasiFormClose = () => {
+        this.setState({ realisasiFormVisible: false });
+    }
+
+    handleInfoFormClose = () => {
+        this.setState({ infoFormVisible: false });
+    }
+
     render() {
-        const {data, loading, addFormVisible, editFormVisible, selectedRecord} = this.state;
+        const { data, loading, addFormVisible, 
+                editFormVisible, selectedRecord,
+                realisasiFormVisible, dataRealisasi, 
+                selectedProject, infoFormVisible} = this.state;
         return  <div>
                     <Table  
                         columns={this.getColumns()} 
@@ -238,6 +395,21 @@ class ListProject extends PureComponent {
                         onCancel={this.handleAddFormClose}
                         centered closable destroyOnClose
                         record={undefined} />
+                    <Realisasi  width="600px"
+                        title="Realisasi" visible={realisasiFormVisible}
+                        record={selectedRecord}
+                        onCancel={this.handleRealisasiFormClose}
+                        centered closable destroyOnClose
+                        footer={null} />
+                    <InfoProject  width="980px"
+                        tahap={1}
+                        title="Info" visible={infoFormVisible}
+                        onCancel={this.handleInfoFormClose}
+                        onDone={this.handleInfoFormClose}
+                        destroyOnClose={true}
+                        centered 
+                        closable
+                        footer={null}  />
                 </div>
             
     }
