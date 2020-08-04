@@ -23,7 +23,7 @@ class App extends PureComponent {
         .then(response => {
           if (response) {
             const appConfig = response.data;
-            //console.log(JSON.parse(response.data));
+            
             const _appCfg = Object.assign({}, appContext.appConfig,   appConfig)
             Object.assign(appContext, { appConfig: _appCfg });
   
