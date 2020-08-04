@@ -1,5 +1,9 @@
 import React, { PureComponent } from 'react';
-import { Form, Input, Modal, DatePicker, Select, Col, Row } from 'antd';
+import { Form, Input, Modal, DatePicker,
+         Select, Col, Row, Drawer,
+         Card, Button, Statistic } from 'antd';
+import ListRencanaKerja from "./list-rencana-kerja";
+import './list-rencana-kerja.less';
 import moment from 'moment';
 
 const { TextArea } = Input;
@@ -115,6 +119,28 @@ class EditProject extends PureComponent {
 
 class ProjectEditorDialog extends PureComponent {
     formRef = React.createRef();
+
+    constructor(props) {
+        super(props)
+        this.state = {
+            visibleDrawer: false,
+            tipe: ''
+        }
+    }
+
+    showDrawer = (tipe) => {
+        this.setState({
+          visibleDrawer: true,
+          tipe: tipe
+        });
+    };
+
+    onClose = () => {
+        this.setState({
+            visibleDrawer: false,
+        });
+    };
+
     handleSave = e => {
         this.formRef.current.validateFields()
                     .then(values => {
@@ -122,18 +148,88 @@ class ProjectEditorDialog extends PureComponent {
                     });
     }
 
+    renderDetail = () => {
+        const {appContext} = this.props;
+        const { tipe } = this.state;
+        switch (tipe) {
+            case 'rencana-kerja' :
+                return <ListRencanaKerja appContext={appContext} />
+                break;
+            default :
+                break;
+        }
+    }
+
     render() {
-        const { record, form, ...otherProps } = this.props;
+        const { appContext, record, form, ...otherProps } = this.props;
         
         return (
             <Modal {...otherProps} onOk={this.handleSave}>
-                <EditProject record={record} form={this.formRef} />
+                <div className="rencana-drawer-render-in-current-wrapper" >
+                    <Drawer
+                        title=""
+                        placement="top"
+                        closable={true}
+                        onClose={this.onClose}
+                        visible={this.state.visibleDrawer}
+                        getContainer={false}
+                        style={{ position: "absolute"}}
+                    >
+                        <ListRencanaKerja appContext={appContext} />
+                    </Drawer>
+                    <EditProject record={record} form={this.formRef} />
+                    <Card>
+                        <Row gutter={2} style={{ textAlign:'center' }}>
+                            <Col span={6}>
+                                <Statistic 
+                                    title="Rencana Kerja (Mandays)" 
+                                    value={400}
+                                    valueStyle={{ fontSize: 'smaller' }}
+                                      />
+                                    <Button 
+                                        style={{ marginTop: 16 }} 
+                                        type="primary" 
+                                        onClick={this.showDrawer}
+                                        size="small">
+                                        Detail
+                                    </Button>
+                            </Col>
+                            <Col span={6}>
+                                <Statistic 
+                                    title="Rencana Personel (Person)" 
+                                    value={5}
+                                    valueStyle={{ fontSize: 'smaller' }}  />
+                                    <Button style={{ marginTop: 16 }} type="primary" size="small">
+                                        Detail
+                                    </Button>
+                            </Col>
+                            <Col span={6}>
+                                <Statistic 
+                                    title="Rencana Biaya" 
+                                    value={3500000000}
+                                    valueStyle={{ fontSize: 'smaller' }}
+                                    prefix={"Rp."}  />
+                                    <Button style={{ marginTop: 16 }} type="primary" size="small">
+                                        Detail
+                                    </Button>
+                            </Col>
+                            <Col span={6}>
+                                <Statistic 
+                                    title="Nilai Ambil Jasa" 
+                                    value={2}
+                                    valueStyle={{ fontSize: 'smaller' }}
+                                    prefix={"Rp."}  />
+                                    <Button style={{ marginTop: 16 }} type="primary" size="small">
+                                        Detail
+                                    </Button>
+                            </Col>
+                        </Row>
+                    </Card>
+                </div>
             </Modal>
         );
     }
 }
-const ProjectEditorDialogForm = ProjectEditorDialog;
 
-export { ProjectEditorDialogForm }
 
-export default EditProject;
+export default ProjectEditorDialog;

@@ -5,7 +5,7 @@ import { withAppContext } from 'context';
 import {EditOutlined, PlusCircleOutlined, 
         DeleteOutlined, MoreOutlined, LineChartOutlined} from '@ant-design/icons';
 import { AddProjectEditorDialogForm } from './add-project';
-import { ProjectEditorDialogForm } from './edit-project';
+import ProjectEditorDialogForm  from './edit-project';
 import InfoProject from './info-project';
 import {Realisasi} from './realisasi';
 
@@ -385,10 +385,12 @@ class ListProject extends PureComponent {
                         loading={loading ? { size: "large", tip: "Memuat data..." } : false}/>
                     <ProjectEditorDialogForm className="edit-form-modal" width="880px"
                         title="Edit" visible={editFormVisible}
+                        appContext={this.props.appContext}
                         onSaveChange={this.handleEditFormSaveChange}
                         onCancel={this.handleEditFormClose}
-                        centered closable destroyOnClose
-                        record={selectedRecord} />
+                        centered closable 
+                        record={selectedRecord}
+                        destroyOnClose={true} />
                     <AddProjectEditorDialogForm className="edit-form-modal" width="880px"
                         title="Add" visible={addFormVisible}
                         onSaveChange={this.handleAddFormSaveChange}
